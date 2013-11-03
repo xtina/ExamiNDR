@@ -48,6 +48,7 @@ public class Gap {
 				temp = line.split("\t");
 				NDR.add(new Point2D.Double(Double.parseDouble(temp[LOC]), Double.parseDouble(temp[DENS])));
 			}
+			br.close();
 		} 
 		catch (FileNotFoundException e) {
 			System.out.println("File " + inputFile + " not found.");
@@ -57,12 +58,12 @@ public class Gap {
 			System.out.println("IO Exception in readFile");
 			g.printStackTrace();
 		}
+		
 	}
 	
 	//Finds gaps; still trying to figure out matlab code
 	public void gapFinder(int densityLimit, int lengthLimit){
 		ArrayList<Point2D.Double> metLimit = new ArrayList<Point2D.Double>(); //ArrayList of points that are under given density limit
-		ArrayList<Point2D.Double> gapIndex = new ArrayList<Point2D.Double>();
 		int size = metLimit.size(); //size of metLimit
 		Point2D.Double curr, prev;
 		
