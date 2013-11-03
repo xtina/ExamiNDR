@@ -62,16 +62,16 @@ public class Gap {
 	}
 	
 	//Finds gaps; still trying to figure out matlab code
-	public void gapFinder(int densityLimit, int lengthLimit){
+	public void gapFinder(double densityLimit, double lengthLimit){
 		ArrayList<Point2D.Double> metLimit = new ArrayList<Point2D.Double>(); //ArrayList of points that are under given density limit
-		int size = metLimit.size(); //size of metLimit
+		int size = NDR.size(); //size of metLimit
 		Point2D.Double curr, prev;
 		
-		//finds points under density limit
+		//finds points under density and length limits
 		for(int i=1; i < size; i++) {
-			prev = metLimit.get(i-1);
-			curr = metLimit.get(i);
-			if((curr.getX() > densityLimit) && (curr.getY() - prev.getY() > lengthLimit)) {
+			prev = NDR.get(i-1);
+			curr = NDR.get(i);
+			if((curr.getY() > densityLimit) && (curr.getX() - prev.getX() > lengthLimit)) {
 				metLimit.add(curr);
 			}
 		}
