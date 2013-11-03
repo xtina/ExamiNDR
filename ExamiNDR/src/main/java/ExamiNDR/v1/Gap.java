@@ -1,10 +1,13 @@
 package ExamiNDR.v1;
 
+import java.awt.Point;
+import java.awt.geom.Point2D;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Gap {
@@ -30,7 +33,7 @@ public class Gap {
 	 * gap(j,2)&& Location(i+1) > gap(j,2) j=j+1; end i=i+1; end
 	 */
 	
-	private double NDR[][]; //contains locations and densities of a genome sequence
+	private ArrayList<Point2D.Double> NDR = new ArrayList<Point2D.Double>(); //contains locations and densities of a genome sequence
 	private static final int LOC = 0; //location indicie in array
 	private static final int DENS = 1; //density indicie in array
 	
@@ -38,15 +41,17 @@ public class Gap {
 	//Reads in a file containing locations and densities of a genome. This file must be tab delineated.
 	public void readFile(File inputFile){
 		try {
-			String line;
-			String[] temp = new String [2];
-			int counter = 0;
+			String line; //line contents
+			String[] temp = new String [2]; //parse line into string array
 			BufferedReader br = new BufferedReader(new FileReader(inputFile));
 			while((line = br.readLine()) != null) {
 				temp = line.split("\t");
-				NDR[counter][LOC] = Integer.parseInt(temp[0]);
-				NDR[counter][DENS] = Integer.parseInt(temp[1]);
-				counter++;
+				NDR.add(new Point2D.Double(Double.parseDouble(temp[LOC]), Double.parseDouble(temp[DENS])));
+			}
+			
+			for(Point2D.Double p : NDR) {
+				System.out.print(p.getX() + " ");
+				System.out.println(p.getY());
 			}
 		} 
 		catch (FileNotFoundException e) {
@@ -60,7 +65,7 @@ public class Gap {
 	}
 	
 	//Finds gaps
-	public void gapFinder(int location, int density, int densityLimit, int lengthLimit){
+	public void gapFinder(int densityLimit, int lengthLimit){
 		
 	}
 }
