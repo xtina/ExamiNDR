@@ -8,7 +8,7 @@ public class Test {
 		// TODO Auto-generated method stub
 		
 		Gap gap = new Gap();
-		gap.readFile(new File("/Users/Christina/Dropbox/NDR project/10_occupancy.txt"));
+		gap.readFile(new File("./TestFiles/10_occupancy.txt"));
 	}
 
 }
