@@ -64,16 +64,14 @@ public class Gap {
 		ArrayList<Point2D.Double> metLimit = new ArrayList<Point2D.Double>(); //ArrayList of points that are under given density limit
 		ArrayList<Point2D.Double> gapIndex = new ArrayList<Point2D.Double>();
 		int size = metLimit.size(); //size of metLimit
+		Point2D.Double curr, prev;
 		
 		//finds points under density limit
-		for(Point2D.Double p : NDR) {
-			if(p.getY()<densityLimit)
-				metLimit.add(p);
-		}
-		
-		for(int i=2; i < size; i++) {
-			if((metLimit.get(i).getX() - metLimit.get(i-1).getX()) != 1) {
-				gapIndex.add(metLimit.get(i-1));
+		for(int i=1; i < size; i++) {
+			prev = metLimit.get(i-1);
+			curr = metLimit.get(i);
+			if((curr.getX() > densityLimit) && (curr.getY() - prev.getY() > lengthLimit)) {
+				metLimit.add(curr);
 			}
 		}
 	}
