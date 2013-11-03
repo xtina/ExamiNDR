@@ -9,6 +9,7 @@ public class Test {
 		
 		Gap gap = new Gap();
 		gap.readFile(new File("./TestFiles/10_occupancy.txt"));
+		gap.gapFinder(1, .2);
 	}
 
 }
