@@ -1,6 +1,5 @@
 package ExamiNDR.v1;
 
-import java.awt.Point;
 import java.awt.geom.Point2D;
 import java.io.BufferedReader;
 import java.io.File;
@@ -8,7 +7,6 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Scanner;
 
 public class Gap {
 	/*
@@ -38,20 +36,17 @@ public class Gap {
 	private static final int DENS = 1; //density indicie in array
 	
 	
-	//Reads in a file containing locations and densities of a genome. This file must be tab delineated.
+	//Reads in a file containing locations and densities of a genome and parses values into ArrayList NDR. This file must be tab delineated.
 	public void readFile(File inputFile){
 		try {
 			String line; //line contents
 			String[] temp = new String [2]; //parse line into string array
+			
+			//read in lines and parse
 			BufferedReader br = new BufferedReader(new FileReader(inputFile));
 			while((line = br.readLine()) != null) {
 				temp = line.split("\t");
 				NDR.add(new Point2D.Double(Double.parseDouble(temp[LOC]), Double.parseDouble(temp[DENS])));
-			}
-			
-			for(Point2D.Double p : NDR) {
-				System.out.print(p.getX() + " ");
-				System.out.println(p.getY());
 			}
 		} 
 		catch (FileNotFoundException e) {
@@ -59,13 +54,27 @@ public class Gap {
 			e.printStackTrace();
 		}
 		catch(IOException g) {
-			System.out.println("IO Exception in readFIle");
+			System.out.println("IO Exception in readFile");
 			g.printStackTrace();
 		}
 	}
 	
-	//Finds gaps
+	//Finds gaps; still trying to figure out matlab code
 	public void gapFinder(int densityLimit, int lengthLimit){
+		ArrayList<Point2D.Double> metLimit = new ArrayList<Point2D.Double>(); //ArrayList of points that are under given density limit
+		ArrayList<Point2D.Double> gapIndex = new ArrayList<Point2D.Double>();
+		int size = metLimit.size(); //size of metLimit
 		
+		//finds points under density limit
+		for(Point2D.Double p : NDR) {
+			if(p.getY()<densityLimit)
+				metLimit.add(p);
+		}
+		
+		for(int i=2; i < size; i++) {
+			if((metLimit.get(i).getX() - metLimit.get(i-1).getX()) != 1) {
+				gapIndex.add(metLimit.get(i-1));
+			}
+		}
 	}
 }
