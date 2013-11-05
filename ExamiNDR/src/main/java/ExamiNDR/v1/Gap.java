@@ -2,9 +2,11 @@ package ExamiNDR.v1;
 
 import java.awt.geom.Point2D;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -31,49 +33,96 @@ public class Gap {
 	 * gap(j,2)&& Location(i+1) > gap(j,2) j=j+1; end i=i+1; end
 	 */
 	
-	private ArrayList<Point2D.Double> NDR = new ArrayList<Point2D.Double>(); //contains locations and densities of a genome sequence
-	private static final int LOC = 0; //location indicie in array
+	private ArrayList<Point2D.Double> densities, metLimit;// = new ArrayList<Point2D.Double>(); //contains locations and densities of a genome sequence
+	//private ArrayList<Point2D.Double> metLimit// = new ArrayList<Point2D.Double>();
+        private static final int LOC = 0; //location indicie in array
 	private static final int DENS = 1; //density indicie in array
-	
 	
 	//Reads in a file containing locations and densities of a genome and parses values into ArrayList NDR. This file must be tab delineated.
 	public void readFile(File inputFile){
-		try {
-			String line; //line contents
-			String[] temp = new String [2]; //parse line into string array
-			
-			//read in lines and parse
-			BufferedReader br = new BufferedReader(new FileReader(inputFile));
-			while((line = br.readLine()) != null) {
-				temp = line.split("\t");
-				NDR.add(new Point2D.Double(Double.parseDouble(temp[LOC]), Double.parseDouble(temp[DENS])));
-			}
-			br.close();
-		} 
-		catch (FileNotFoundException e) {
-			System.out.println("File " + inputFile + " not found.");
-			e.printStackTrace();
-		}
-		catch(IOException g) {
-			System.out.println("IO Exception in readFile");
-			g.printStackTrace();
-		}
-		
+            try {
+                densities = new ArrayList<Point2D.Double>();
+                metLimit = new ArrayList<Point2D.Double>();
+                String line; //line contents
+                String[] temp = new String[2]; //parse line into string array
+
+                //read in lines and parse
+                BufferedReader br = new BufferedReader(new FileReader(inputFile));
+                while((line = br.readLine()) != null) {
+                    temp = line.split("\t");
+                    densities.add(new Point2D.Double(Double.parseDouble(temp[LOC]), Double.parseDouble(temp[DENS])));
+                }
+                br.close();
+            } 
+            catch (FileNotFoundException e) {
+                    System.out.println("File " + inputFile + " not found.");
+                    e.printStackTrace();
+            }
+            catch(IOException g) {
+                    System.out.println("IO Exception in writeFile");
+                    g.printStackTrace();
+            }
 	}
 	
-	//Finds gaps; still trying to figure out matlab code
-	public void gapFinder(double densityLimit, double lengthLimit){
-		ArrayList<Point2D.Double> metLimit = new ArrayList<Point2D.Double>(); //ArrayList of points that are under given density limit
-		int size = NDR.size(); //size of metLimit
-		Point2D.Double curr, prev;
-		
-		//finds points under density and length limits
-		for(int i=1; i < size; i++) {
-			prev = NDR.get(i-1);
-			curr = NDR.get(i);
-			if((curr.getY() > densityLimit) && (curr.getX() - prev.getX() > lengthLimit)) {
-				metLimit.add(curr);
-			}
-		}
+        // Outputs the current list of NDRs to file, format: startPosition TAB endPosition
+        public void writeOutput(File outFile) {
+            try {
+                BufferedWriter bw = new BufferedWriter(new FileWriter(outFile));
+                for(Point2D.Double ndr : metLimit) {
+                    bw.write(ndr.getX() + "\t" + ndr.getY() + "\n");
+                }
+                bw.flush();
+                bw.close();
+            }
+            catch (FileNotFoundException e) {
+                System.out.println("File " + outFile + " not found.");
+                e.printStackTrace();
+            }
+            catch(IOException e) {
+                System.out.println("IO Exception in writeFile");
+                e.printStackTrace();
+            }
+        }
+        
+	public void gapFinder(double densityLimit, double lengthLimit, double gapTolerance){
+            int size = densities.size(); //size of metLimit
+            int i = 0;
+            double startPos = 0;
+            while(i < size) {
+                // continue incrementing i until no longer contained within a region of low nucleosome density
+                // at this point, check length of segment
+                if(densities.get(i).getY() > densityLimit) {
+                    if(i >= 1) {
+                        double endPos = densities.get(i-1).getX();
+                        // check to see whether it was long enough
+                        if((endPos - startPos) > lengthLimit) {
+                            // check if it should be combined with the previous ndr
+                            if(metLimit.size() > 0) {
+                                Point2D.Double prev = metLimit.get(metLimit.size() - 1);
+                                if(startPos - prev.getY() < gapTolerance) {
+                                    double prevStart = prev.getX();
+                                    metLimit.set(metLimit.size() - 1, new Point2D.Double(prevStart, endPos));
+                                }
+                                else {
+                                    metLimit.add(new Point2D.Double(startPos, endPos));
+                                }
+                            }
+                            else {
+                                metLimit.add(new Point2D.Double(startPos, endPos));
+                            }
+                        }
+                    }
+                    if(i < densities.size() - 1) {
+                        startPos = densities.get(i+1).getX();
+                    }
+                }
+                i++;
+            }
+	}
+	
+	/* returns the number of currently identified NDRs
+	*/
+	public int getNDRCount() {
+		return metLimit.size();
 	}
 }
