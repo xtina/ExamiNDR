@@ -18,5 +18,4 @@ public class Test {
                 }
 		System.out.println("identified " + total + " total NDRs");
 	}
-
 }
